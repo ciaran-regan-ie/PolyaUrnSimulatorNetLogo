@@ -75,7 +75,13 @@ to go
 
   ;; step 2 - extract balls from urn
   get-caller
+  ask turtles with [label = caller] [
+    set caller-id who
+    ]
   get-called
+  ask turtles with [label = called] [
+    set called-id who
+    ]
   show "Caller: "
   show caller
   show "Called: "
@@ -104,8 +110,8 @@ to go
     set interacted-urns ( insert-item 0 interacted-urns called )
   ]
 
-  get-id-from-caller-label
-  get-id-from-called-label
+
+
 
   show "caller id"
   show caller-id
@@ -162,22 +168,12 @@ to get-caller
 end
 
 to get-called
-  ask turtle caller [
+  ask turtle caller-id [
+    show "caller past interactions"
+    show past-interactions
     set called (one-of past-interactions)
     set called-memory-buffer memory-buffer
   ]
-end
-
-to get-id-from-caller-label
-  ask turtles with [label = caller] [
-    set caller-id who
-    ]
-end
-
-to get-id-from-called-label
-  ask turtles with [label = called] [
-    set called-id who
-    ]
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
