@@ -5,8 +5,10 @@ globals [
   initial-urns
   counter
   caller
+  caller-id
   caller-memory-buffer
   called
+  called-id
   called-memory-buffer
   interacted-urns
 ]
@@ -55,21 +57,11 @@ to setup
     set counter counter + 1
   ]
 
-  create-urns (2 * (nu + 1)) [
-    rt random-float 360
-    fd max-pxcor
-    set size 2
-    set id who
-    set label who
-    set color white
-    set past-interations ( (who * nu + 1) )
-  ]
-
   ask turtle 0 [ create-link-with turtle 1 [ set color white ] ]
   set interacted-urns []
   set interacted-urns ( insert-item 0 interacted-urns 0 )
   set interacted-urns ( insert-item 0 interacted-urns 1 )
-  wait 0.4
+  wait 0.2
   clear-links
   foreach [2 4 6]
   reset-ticks
@@ -98,17 +90,35 @@ to go
       rt random-float 360
       fd max-pxcor
       set size 2
-      set id who
-      set label who
+      set id called
+      set label called
       set color red
-      set past-interactions (range (total-urns - (( 1 ) * (nu + 1))) total-urns)
+      set past-interactions (range (total-urns) (total-urns + (( 1 ) * (nu + 1))))
       set number-past-interactions (length past-interactions)
       set memory-buffer past-interactions
+      show "NEW URN CREATED"
+      show "MEMORY BUFFER"
+      show memory-buffer
+      set total-urns (total-urns + nu + 1 + 1)
     ]
+    set interacted-urns ( insert-item 0 interacted-urns called )
   ]
 
+  get-id-from-caller-label
+  get-id-from-called-label
+
+  show "caller id"
+  show caller-id
+
+  show "called id"
+  show called-id
+
+  ask turtle caller-id [ create-link-with turtle called-id [ set color white ] ]
+  wait 0.2
+  clear-links
+
   ;; step 3 - reinforcement
-  ask turtle caller [
+  ask turtles with [label = caller] [
     set counter 0
     while [ counter < rho ] [
       set past-interactions (insert-item 0 past-interactions called)
@@ -116,7 +126,7 @@ to go
     ]
     set number-past-interactions (length past-interactions)
   ]
-   ask turtle called [
+  ask turtles with [label = called] [
     set counter 0
     while [ counter < rho ] [
       set past-interactions (insert-item 0 past-interactions caller)
@@ -126,12 +136,12 @@ to go
   ]
 
   ;; step 4 - novelty
-  ask turtle caller [
+  ask turtles with [label = caller] [
     if member? called past-interactions [
       foreach called-memory-buffer [ aid -> set past-interactions (insert-item 0 past-interactions aid) ]
     ]
   ]
-  ask turtle called [
+  ask turtles with [label = called] [
     if member? caller past-interactions [
       foreach caller-memory-buffer [ aid -> set past-interactions (insert-item 0 past-interactions aid) ]
     ]
@@ -140,8 +150,6 @@ to go
 
   ;; update the memory buffer according to the strategy
   ;; <CODE WILL GO HERE>
-
-
 
 
 end
@@ -155,10 +163,21 @@ end
 
 to get-called
   ask turtle caller [
-    show past-interactions
     set called (one-of past-interactions)
     set called-memory-buffer memory-buffer
   ]
+end
+
+to get-id-from-caller-label
+  ask turtles with [label = caller] [
+    set caller-id who
+    ]
+end
+
+to get-id-from-called-label
+  ask turtles with [label = called] [
+    set called-id who
+    ]
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -261,6 +280,23 @@ NIL
 NIL
 NIL
 1
+
+BUTTON
+57
+329
+120
+362
+GO
+go
+T
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+0
 
 @#$#@#$#@
 ## WHAT IS IT?
