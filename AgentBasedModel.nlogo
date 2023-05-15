@@ -89,15 +89,7 @@ to go
   ;; step 2 - extract balls from urn
   get-caller
   set caller-id table:get dict caller
-
-  show "caller"
-  show caller
-
   get-called
-
-
-  show "called"
-  show called
 
   ;; check if the called urn has taken part in an interaction before
   if not member? called interacted-urns [
@@ -107,8 +99,6 @@ to go
         let x 0
         let y 0
         let side random 4
-        show "side"
-        show side
         if side = 0 [ set x -32 set y random-ycor ]
         if side = 1 [ set x 32 set y random-ycor ]
         if side = 2 [ set x random-xcor set y -32 ]
@@ -144,15 +134,11 @@ to go
   wait 0.005
   clear-links
 
-  show "Beginning Step 4 - Novelty"
   ;; step 4 - novelty
   ask turtles with [label = caller] [
     if not member? called past-interactions [
-      show "NOVEL INTERACTION - CALLER"
       ;; update the memory buffer
-      show caller-memory-buffer
       let updated-memory-buffer update-memory-buffer-wsw possible-interactions
-      show updated-memory-buffer
       foreach updated-memory-buffer [
         aid ->
         if aid != label [
@@ -163,11 +149,8 @@ to go
   ]
   ask turtles with [label = called] [
     if not member? called past-interactions [
-      show "NOVEL INTERACTION - CALLED"
       ;; update the memory buffer
-      show caller-memory-buffer
       let updated-memory-buffer update-memory-buffer-wsw possible-interactions
-      show updated-memory-buffer
       foreach updated-memory-buffer [
         aid ->
         if aid != label [
@@ -176,7 +159,6 @@ to go
       ]
     ]
   ]
-  show "Finished Step 4 - Novelty"
 
   ;; step 3 - reinforcement
   ask turtles with [label = caller] [
@@ -201,6 +183,10 @@ to go
   ;; make the interacting agents move closer together
   ask urn caller-id [
       face urn called-id
+      forward 1
+  ]
+  ask urn called-id [
+      face urn caller-id
       forward 1
   ]
   tick
@@ -266,7 +252,7 @@ rho
 rho
 1
 20
-17.0
+20.0
 1
 1
 NIL
@@ -281,7 +267,7 @@ nu
 nu
 1
 20
-3.0
+1.0
 1
 1
 NIL
@@ -390,31 +376,43 @@ positioning
 @#$#@#$#@
 ## WHAT IS IT?
 
-(a general understanding of what the model is trying to show or explain)
+This project impements the modified Polya's urn model for modelling the growth and dyanmics of novelties in social networks. In particular, this modelling strategy makes use of the adjacent possible space used in biology, to expand social networks based on their possible next interacations.
 
 ## HOW IT WORKS
 
-(what rules the agents use to create the overall behavior of the model)
+In this modified polya's urn model model, each agent (or person) is represented by an urn. Inside each agents urn is a number of balls with different IDs on them. These IDs represent the other agents that this agent can interact with. When the model is initialised, two urns are created, each filled with nu + 1 initial interactale agents. These balls represent the agent's possible space - a term coined in biology that represents possible interactions that have not yet happened. 
+
+At each time step, we select an urn at random, weighted by the number of balls in this urn. This selection represents prefential attachment, that is, urns with more interactions, and hence more balls, tend to take part in interactions more frequently. This selected agent is known as the caller agent. We then select a callee agent by selecting a ball from the caller agents urn. These two agents are then said to interact. 
+
+The first step is to check if this interaction is a novel interaction, meaning that it has not happened before. If this is the case, then we exchange each agents so called memory buffer. The memory buffer is a set of nu + 1 balls from each agents urn that represents the agents they will share with the other agents. This exchange of connections allows callee to interact with some of the callees past connections and vice versa. In this way, the agent possible space of each agent gets bigger. The ids that are in each agents memory buffer are determined by an exchange strategy s, which in this case is either WSW (each agent exchanges their most commonly interacted connections) or SSW (each agent exchanges their most recent interactions).
+
+The next step is reinforcement - that is, into the callee agents urn we place rho copies of the callers ball and vice versa. In this way, we strengthen the two agents relationship, increasing the likelyhood of this interaction occuring again in the future.
+
+In this way, the model is entirely defined by three parameters: rho, the reinforcement value, nu, the size of the memory buffer to be exchanged and s, the strategy used for deciding the memory buffer.
 
 ## HOW TO USE IT
 
-(how to use the model, including a description of each of the items in the Interface tab)
+To use the model, select the values of rho, nu and s. You can also select how the agents are positioned - whether they begin on a the world border, in a circle, or randomly.
+
+Then select set up and go. You can go in single time steps or you can loop forever.
 
 ## THINGS TO NOTICE
 
-(suggested things for the user to notice while running the model)
+The graphs represent the expanse of the adjacent possible space. As nu is increased, we can see that the adjacent possible space grows faster.
 
 ## THINGS TO TRY
 
-(suggested things for the user to try to do (move sliders, switches, etc.) with the model)
+Try to run the model with different positioning values and see how the networks form.
 
 ## EXTENDING THE MODEL
 
-(suggested things to add or change in the Code tab to make the model more complicated, detailed, accurate, etc.)
+Try to add different exchange strategies to see how the network expands.
+
+Try to update how the agents are positioned initially, and how they move at each interaction.
 
 ## NETLOGO FEATURES
 
-(interesting or unusual features of NetLogo that the model uses, particularly in the Code tab; or where workarounds were needed for missing features)
+One benefit of using NetLogo is how we can visualise the growth of the social network using both the view of the world and the graphs.
 
 ## RELATED MODELS
 
