@@ -21,8 +21,9 @@ breed [urns urn]
 
 urns-own [
  id ;; the id of the urn
- past-interactions ;; the urns available to ineract with
- number-past-interactions ;; the size of the urn, or the number of agents this agent has interacted with in the past
+ possible-interactions ;; the urns available to be interacted with
+ number-possible-interactions ;; the size of the urn, or the number of agents this agent has interacted with in the past
+ past-interactions ;; a list of the urns previously interacted with
  memory-buffer ;; the memory buffer of the urn
 ]
 
@@ -45,19 +46,24 @@ to setup
     set total-urns ( total-urns + nu + 1)
     create-urns 1 [
     ;rt random-float 360
-    fd max-pxcor
+
     set size 1
     set label who
     table:put dict who who
     set color red
-    set past-interactions (range (total-urns - (( 1 ) * (nu + 1))) total-urns)
-    set number-past-interactions (length past-interactions)
-    set memory-buffer past-interactions
+    set possible-interactions (range (total-urns - (( 1 ) * (nu + 1))) total-urns)
+    set number-possible-interactions (length possible-interactions)
+    set memory-buffer possible-interactions
+    set past-interactions []
     (ifelse
         who = 0 [
-          set past-interactions ( insert-item 0 past-interactions 1) ]
+          set possible-interactions ( insert-item 0 possible-interactions 1)
+          ;;set past-interactions [1]
+        ]
         who = 1 [
-          set past-interactions ( insert-item 0 past-interactions 0) ]
+          set possible-interactions ( insert-item 0 possible-interactions 0)
+          ;;set past-interactions [0]
+        ]
     )
     ]
     set counter counter + 1
@@ -83,42 +89,94 @@ to go
   ;; step 2 - extract balls from urn
   get-caller
   set caller-id table:get dict caller
+
+  show "caller"
+  show caller
+
   get-called
+
+
+  show "called"
+  show called
+
   ;; check if the called urn has taken part in an interaction before
   if not member? called interacted-urns [
     create-urns 1　[
 
+      if positioning = "Border" [
         let x 0
-      let y 0
-      let side random 4
-      if side = 0 [ set x min-pxcor set y random-ycor ]
-      if side = 1 [ set x max-pxcor set y random-ycor ]
-      if side = 2 [ set x random-xcor set y min-pycor ]
-      if side = 3 [ set x random-xcor set y max-pycor ]
-      setxy x y
+        let y 0
+        let side random 4
+        show "side"
+        show side
+        if side = 0 [ set x -32 set y random-ycor ]
+        if side = 1 [ set x 32 set y random-ycor ]
+        if side = 2 [ set x random-xcor set y -32 ]
+        if side = 3 [ set x random-xcor set y 32 ]
 
-      ;setxy (random-xcor) (random-ycor)
+        setxy x y
+      ]
+      if positioning = "Circle" [
+        rt random-float 360
+      ]
 
-      ;rt random-float 360
-      fd max-pxcor
+      if positioning = "Random" [
+        setxy (random-xcor) (random-ycor)
+      ]
+
       set size 1
       set id called
       set label called
       table:put dict called who
       set color red
-      set past-interactions (range (total-urns) (total-urns + (( 1 ) * (nu + 1))))
-      set number-past-interactions (length past-interactions)
-      set memory-buffer past-interactions
+      set possible-interactions (range (total-urns) (total-urns + (( 1 ) * (nu + 1))))
+      set number-possible-interactions (length possible-interactions)
+      set memory-buffer possible-interactions
+      set past-interactions []
       set total-urns (total-urns + nu + 1 + 1)
     ]
     set interacted-urns ( insert-item 0 interacted-urns called )
     set size-adj-possible (size-adj-possible + (nu + 1))
   ]
   set called-id table:get dict called
-
+  wait 0.005
   ask turtle caller-id [ create-link-with turtle called-id [ set color white ] ]
   wait 0.005
   clear-links
+
+  show "Beginning Step 4 - Novelty"
+  ;; step 4 - novelty
+  ask turtles with [label = caller] [
+    if not member? called past-interactions [
+      show "NOVEL INTERACTION - CALLER"
+      ;; update the memory buffer
+      show caller-memory-buffer
+      let updated-memory-buffer update-memory-buffer-wsw possible-interactions
+      show updated-memory-buffer
+      foreach updated-memory-buffer [
+        aid ->
+        if aid != label [
+          set possible-interactions (insert-item 0 possible-interactions aid)
+        ]
+      ]
+    ]
+  ]
+  ask turtles with [label = called] [
+    if not member? called past-interactions [
+      show "NOVEL INTERACTION - CALLED"
+      ;; update the memory buffer
+      show caller-memory-buffer
+      let updated-memory-buffer update-memory-buffer-wsw possible-interactions
+      show updated-memory-buffer
+      foreach updated-memory-buffer [
+        aid ->
+        if aid != label [
+          set possible-interactions (insert-item 0 possible-interactions aid)
+        ]
+      ]
+    ]
+  ]
+  show "Finished Step 4 - Novelty"
 
   ;; step 3 - reinforcement
   ask turtles with [label = caller] [
@@ -127,7 +185,7 @@ to go
       set past-interactions (insert-item 0 past-interactions called)
       set counter (counter + 1)
     ]
-    set number-past-interactions (length past-interactions)
+    set number-possible-interactions (length possible-interactions)
   ]
   ask turtles with [label = called] [
     set counter 0
@@ -135,50 +193,22 @@ to go
       set past-interactions (insert-item 0 past-interactions caller)
       set counter (counter + 1)
     ]
-    set number-past-interactions (length past-interactions)
+    set number-possible-interactions (length possible-interactions)
   ]
 
-  ;; step 4 - novelty
-  ask turtles with [label = caller] [
-    if member? called past-interactions [
-      foreach called-memory-buffer [
-        aid ->
-        if aid != label [
-          set past-interactions (insert-item 0 past-interactions aid)
-        ]
-      ]
-    ]
-  ]
-  ask turtles with [label = called] [
-    if member? caller past-interactions [
-      foreach caller-memory-buffer [
-        aid ->
-        if aid != label [
-          set past-interactions (insert-item 0 past-interactions aid)
-        ]
-      ]
-    ]
-  ]
 
+
+  ;; make the interacting agents move closer together
   ask urn caller-id [
-
       face urn called-id
       forward 1
-
   ]
-
-
-
-
   tick
-  ;; update the memory buffer according to the strategy
-  ;; <CODE WILL GO HERE>
-
 
 end
 
 to get-caller
-  ask rnd:weighted-one-of urns [ number-past-interactions ] [
+  ask rnd:weighted-one-of urns [ number-possible-interactions ] [
    set caller label
    set caller-memory-buffer memory-buffer
   ]
@@ -186,16 +216,25 @@ end
 
 to get-called
   ask turtle caller-id [
-    set called (one-of past-interactions)
+    set called (one-of possible-interactions)
     set called-memory-buffer memory-buffer
   ]
 end
+
+to-report update-memory-buffer-wsw [agents-based-interactions]
+  let updated-memory-buffer rnd:weighted-n-of-list (nu + 1) agents-based-interactions [ [w] -> w ]
+  report updated-memory-buffer
+end
+
+to ssw
+
+end
 @#$#@#$#@
 GRAPHICS-WINDOW
-247
-29
-1295
-1078
+407
+19
+1455
+1068
 -1
 -1
 16.0
@@ -212,8 +251,8 @@ GRAPHICS-WINDOW
 32
 -32
 32
-0
-0
+1
+1
 1
 ticks
 30.0
@@ -227,7 +266,7 @@ rho
 rho
 1
 20
-14.0
+17.0
 1
 1
 NIL
@@ -242,7 +281,7 @@ nu
 nu
 1
 20
-12.0
+3.0
 1
 1
 NIL
@@ -337,6 +376,16 @@ size-adj-possible
 17
 1
 11
+
+CHOOSER
+173
+127
+311
+172
+positioning
+positioning
+"Random" "Border" "Circle"
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
