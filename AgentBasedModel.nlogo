@@ -141,7 +141,7 @@ to go
         ]
       ]
       if strategy = "SSW"[
-        let updated-memory-buffer ssw possible-interactions caller
+        let updated-memory-buffer ssw memory-buffer caller
         set memory-buffer updated-memory-buffer
         foreach updated-memory-buffer [
           aid ->
@@ -167,7 +167,7 @@ to go
         ]
       ]
       if strategy = "SSW"[
-        let updated-memory-buffer ssw possible-interactions called
+        let updated-memory-buffer ssw memory-buffer called
         set memory-buffer updated-memory-buffer
         foreach updated-memory-buffer [
           aid ->
@@ -234,17 +234,24 @@ end
 
 ;; ssw strategy
 to-report ssw [previous-memory-buffer aid]
-  show "PREVIOUS"
-  show previous-memory-buffer
   let updated-memory-buffer ( insert-item 0 (remove-item nu previous-memory-buffer) aid)
-  show "UPDATED"
-  show updated-memory-buffer
   report updated-memory-buffer
 end
 
 
 to layout
   layout-spring (turtles with [any? link-neighbors]) links 0.4 6 1
+
+  let maxX max [xcor] of turtles
+  let minX min [xcor] of turtles
+  let maxY max [ycor] of turtles
+  let minY min [ycor] of turtles
+
+  if (maxX + 2) > max-pxcor [
+    resize-world (min-pxcor * 1.05) (max-pxcor * 1.05) (min-pycor * 1.05) (max-pycor * 1.05)
+  ]
+
+
 end
 
 to resize-nodes
@@ -263,8 +270,8 @@ end
 GRAPHICS-WINDOW
 437
 34
-1485
-1083
+1677
+1275
 -1
 -1
 16.0
@@ -277,10 +284,10 @@ GRAPHICS-WINDOW
 0
 0
 1
--32
-32
--32
-32
+-38
+38
+-38
+38
 1
 1
 1
@@ -296,7 +303,7 @@ rho
 rho
 1
 30
-4.0
+30.0
 1
 1
 NIL
@@ -311,7 +318,7 @@ nu
 nu
 1
 20
-2.0
+9.0
 1
 1
 NIL
