@@ -130,11 +130,22 @@ to go
   ask turtles with [label = caller] [
     if not member? called past-interactions [
       ;; update the memory buffer
-      let updated-memory-buffer update-memory-buffer-wsw possible-interactions
-      foreach updated-memory-buffer [
-        aid ->
-        if aid != label [
-          set possible-interactions (insert-item 0 possible-interactions aid)
+      if strategy = "WSW"[
+        let updated-memory-buffer update-memory-buffer-wsw possible-interactions
+        foreach updated-memory-buffer [
+          aid ->
+          if aid != label [
+            set possible-interactions (insert-item 0 possible-interactions aid)
+          ]
+        ]
+      ]
+      if strategy = "SSW"[
+        let updated-memory-buffer update-memory-buffer-ssw possible-interactions caller
+        foreach updated-memory-buffer [
+          aid ->
+          if aid != label [
+            set possible-interactions (insert-item 0 possible-interactions aid)
+          ]
         ]
       ]
     ]
@@ -142,11 +153,22 @@ to go
   ask turtles with [label = called] [
     if not member? called past-interactions [
       ;; update the memory buffer
-      let updated-memory-buffer update-memory-buffer-wsw possible-interactions
-      foreach updated-memory-buffer [
-        aid ->
-        if aid != label [
-          set possible-interactions (insert-item 0 possible-interactions aid)
+      if strategy = "WSW"[
+        let updated-memory-buffer update-memory-buffer-wsw possible-interactions
+        foreach updated-memory-buffer [
+          aid ->
+          if aid != label [
+            set possible-interactions (insert-item 0 possible-interactions aid)
+          ]
+        ]
+      ]
+      if strategy = "SSW"[
+        let updated-memory-buffer update-memory-buffer-ssw possible-interactions called
+        foreach updated-memory-buffer [
+          aid ->
+          if aid != label [
+            set possible-interactions (insert-item 0 possible-interactions aid)
+          ]
         ]
       ]
     ]
@@ -199,10 +221,18 @@ to get-called
   ]
 end
 
+;; wsw strategy
 to-report update-memory-buffer-wsw [agents-based-interactions]
   let updated-memory-buffer rnd:weighted-n-of-list (nu + 1) agents-based-interactions [ [w] -> w ]
   report updated-memory-buffer
 end
+
+;; ssw strategy
+to-report update-memory-buffer-ssw [previous-memory-buffer aid]
+  let updated-memory-buffer ( insert-item 0 (remove-item nu previous-memory-buffer) aid)
+  report updated-memory-buffer
+end
+
 
 to layout
   layout-spring (turtles with [any? link-neighbors]) links 0.4 6 1
@@ -287,8 +317,8 @@ CHOOSER
 123
 179
 168
-Strategy
-Strategy
+strategy
+strategy
 "SSW" "WSW"
 0
 
