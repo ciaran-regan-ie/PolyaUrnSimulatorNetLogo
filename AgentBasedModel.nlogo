@@ -75,9 +75,6 @@ to setup
   set interacted-urns []
   set interacted-urns ( insert-item 0 interacted-urns 0 )
   set interacted-urns ( insert-item 0 interacted-urns 1 )
-  wait 0.005
-  clear-links
-  foreach [2 4 6]
   reset-ticks
 end
 
@@ -129,10 +126,7 @@ to go
     set size-adj-possible (size-adj-possible + (nu + 1))
   ]
   set called-id table:get dict called
-  wait 0.005
   ask turtle caller-id [ create-link-with turtle called-id [ set color white ] ]
-  wait 0.005
-  clear-links
 
   ;; step 4 - novelty
   ask turtles with [label = caller] [
@@ -212,6 +206,23 @@ to-report update-memory-buffer-wsw [agents-based-interactions]
   report updated-memory-buffer
 end
 
+to layout
+  layout-spring (turtles with [any? link-neighbors]) links 0.4 6 1
+end
+
+to resize-nodes
+  ifelse all? turtles [size <= 1]
+  [
+    ;; a node is a circle with diameter determined by
+    ;; the SIZE variable; using SQRT makes the circle's
+    ;; area proportional to its degree
+    ask turtles [ set size sqrt count link-neighbors ]
+  ]
+  [
+    ask turtles [ set size 1 ]
+  ]
+end
+
 to ssw
 
 end
@@ -237,8 +248,8 @@ GRAPHICS-WINDOW
 32
 -32
 32
-1
-1
+0
+0
 1
 ticks
 30.0
@@ -267,7 +278,7 @@ nu
 nu
 1
 20
-1.0
+6.0
 1
 1
 NIL
@@ -335,10 +346,10 @@ NIL
 0
 
 PLOT
-12
-383
-212
-533
+0
+378
+200
+528
 Size of Adjacent Possible Space
 Time
 n
@@ -371,7 +382,59 @@ CHOOSER
 positioning
 positioning
 "Random" "Border" "Circle"
+2
+
+BUTTON
+182
+621
+255
+654
+Layout
+layout
+T
 1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+285
+237
+403
+270
+RESIZE NODES
+resize-nodes
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+0
+
+PLOT
+202
+377
+402
+527
+Degree Distribution
+degree
+# of nodes
+1.0
+10.0
+0.0
+10.0
+true
+false
+"" ""
+PENS
+"default" 1.0 1 -16777216 true "" "let max-degree max [count link-neighbors] of turtles\nplot-pen-reset  ;; erase what we plotted before\nset-plot-x-range 1 (max-degree + 1)  ;; + 1 to make room for the width of the last bar\nhistogram [count link-neighbors] of turtles"
 
 @#$#@#$#@
 ## WHAT IS IT?
