@@ -132,6 +132,7 @@ to go
       ;; update the memory buffer
       if strategy = "WSW"[
         let updated-memory-buffer wsw possible-interactions
+        set memory-buffer updated-memory-buffer
         foreach updated-memory-buffer [
           aid ->
           if aid != label [
@@ -141,6 +142,7 @@ to go
       ]
       if strategy = "SSW"[
         let updated-memory-buffer ssw possible-interactions caller
+        set memory-buffer updated-memory-buffer
         foreach updated-memory-buffer [
           aid ->
           if aid != label [
@@ -152,9 +154,11 @@ to go
   ]
   ask turtles with [label = called] [
     if not member? called past-interactions [
+
       ;; update the memory buffer
       if strategy = "WSW"[
         let updated-memory-buffer wsw possible-interactions
+        set memory-buffer updated-memory-buffer
         foreach updated-memory-buffer [
           aid ->
           if aid != label [
@@ -164,6 +168,7 @@ to go
       ]
       if strategy = "SSW"[
         let updated-memory-buffer ssw possible-interactions called
+        set memory-buffer updated-memory-buffer
         foreach updated-memory-buffer [
           aid ->
           if aid != label [
@@ -229,8 +234,11 @@ end
 
 ;; ssw strategy
 to-report ssw [previous-memory-buffer aid]
-  show "UPDATING MEMORY BUFFER - SSW"
+  show "PREVIOUS"
+  show previous-memory-buffer
   let updated-memory-buffer ( insert-item 0 (remove-item nu previous-memory-buffer) aid)
+  show "UPDATED"
+  show updated-memory-buffer
   report updated-memory-buffer
 end
 
