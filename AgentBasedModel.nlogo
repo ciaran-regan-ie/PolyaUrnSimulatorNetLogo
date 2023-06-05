@@ -45,8 +45,6 @@ to setup
   while [ counter < initial-urns ] [
     set total-urns ( total-urns + nu + 1)
     create-urns 1 [
-    ;rt random-float 360
-
     set size 1
     set label who
     table:put dict who who
@@ -228,10 +226,10 @@ to ssw
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-407
-19
-1455
-1068
+437
+34
+1485
+1083
 -1
 -1
 16.0
@@ -248,8 +246,8 @@ GRAPHICS-WINDOW
 32
 -32
 32
-0
-0
+1
+1
 1
 ticks
 30.0
@@ -262,8 +260,8 @@ SLIDER
 rho
 rho
 1
-20
-20.0
+30
+40.0
 1
 1
 NIL
@@ -278,27 +276,27 @@ nu
 nu
 1
 20
-6.0
+13.0
 1
 1
 NIL
 HORIZONTAL
 
 CHOOSER
-20
-127
-158
-172
+41
+123
+179
+168
 Strategy
 Strategy
 "SSW" "WSW"
 0
 
 BUTTON
-76
-181
-146
-214
+20
+186
+90
+219
 SETUP
 setup
 NIL
@@ -312,11 +310,11 @@ NIL
 1
 
 BUTTON
-78
-224
-141
-257
-GO
+103
+230
+193
+263
+GO ONCE
 go
 NIL
 1
@@ -329,10 +327,10 @@ NIL
 1
 
 BUTTON
-77
-270
-140
-303
+20
+229
+89
+262
 GO
 go
 T
@@ -347,10 +345,10 @@ NIL
 
 PLOT
 0
-378
+380
 200
-528
-Size of Adjacent Possible Space
+530
+Size Adj. Possible Space
 Time
 n
 0.0
@@ -364,32 +362,32 @@ PENS
 "default" 1.0 0 -16777216 true "" "plot size-adj-possible"
 
 MONITOR
-57
-319
-178
-364
-NIL
+31
+331
+200
+376
+Size Adj. Possible Space   
 size-adj-possible
 17
 1
 11
 
 CHOOSER
-173
-127
-311
-172
+246
+36
+384
+81
 positioning
 positioning
 "Random" "Border" "Circle"
-2
+0
 
 BUTTON
-182
-621
-255
-654
-Layout
+271
+133
+354
+166
+LAYOUT
 layout
 T
 1
@@ -402,10 +400,10 @@ NIL
 1
 
 BUTTON
-285
-237
-403
-270
+253
+90
+371
+123
 RESIZE NODES
 resize-nodes
 NIL
@@ -419,10 +417,10 @@ NIL
 0
 
 PLOT
-202
-377
-402
-527
+3
+592
+203
+742
 Degree Distribution
 degree
 # of nodes
@@ -435,6 +433,66 @@ false
 "" ""
 PENS
 "default" 1.0 1 -16777216 true "" "let max-degree max [count link-neighbors] of turtles\nplot-pen-reset  ;; erase what we plotted before\nset-plot-x-range 1 (max-degree + 1)  ;; + 1 to make room for the width of the last bar\nhistogram [count link-neighbors] of turtles"
+
+PLOT
+221
+380
+421
+530
+Number of Interacted Agents
+NIL
+NIL
+0.0
+10.0
+0.0
+10.0
+true
+false
+"" ""
+PENS
+"default" 1.0 0 -16777216 true "" "plot length interacted-urns"
+
+MONITOR
+246
+330
+421
+375
+Number Interacted Agents
+length interacted-urns
+0
+1
+11
+
+MONITOR
+28
+542
+151
+587
+Max Num of Links
+max [count link-neighbors] of turtles
+17
+1
+11
+
+TEXTBOX
+42
+10
+192
+30
+Model Parameters
+16
+0.0
+1
+
+TEXTBOX
+251
+13
+401
+33
+Network Settings
+16
+0.0
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
