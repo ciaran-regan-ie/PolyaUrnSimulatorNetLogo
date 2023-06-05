@@ -131,7 +131,7 @@ to go
     if not member? called past-interactions [
       ;; update the memory buffer
       if strategy = "WSW"[
-        let updated-memory-buffer update-memory-buffer-wsw possible-interactions
+        let updated-memory-buffer wsw possible-interactions
         foreach updated-memory-buffer [
           aid ->
           if aid != label [
@@ -140,7 +140,7 @@ to go
         ]
       ]
       if strategy = "SSW"[
-        let updated-memory-buffer update-memory-buffer-ssw possible-interactions caller
+        let updated-memory-buffer ssw possible-interactions caller
         foreach updated-memory-buffer [
           aid ->
           if aid != label [
@@ -154,7 +154,7 @@ to go
     if not member? called past-interactions [
       ;; update the memory buffer
       if strategy = "WSW"[
-        let updated-memory-buffer update-memory-buffer-wsw possible-interactions
+        let updated-memory-buffer wsw possible-interactions
         foreach updated-memory-buffer [
           aid ->
           if aid != label [
@@ -163,7 +163,7 @@ to go
         ]
       ]
       if strategy = "SSW"[
-        let updated-memory-buffer update-memory-buffer-ssw possible-interactions called
+        let updated-memory-buffer ssw possible-interactions called
         foreach updated-memory-buffer [
           aid ->
           if aid != label [
@@ -222,13 +222,14 @@ to get-called
 end
 
 ;; wsw strategy
-to-report update-memory-buffer-wsw [agents-based-interactions]
+to-report wsw [agents-based-interactions]
   let updated-memory-buffer rnd:weighted-n-of-list (nu + 1) agents-based-interactions [ [w] -> w ]
   report updated-memory-buffer
 end
 
 ;; ssw strategy
-to-report update-memory-buffer-ssw [previous-memory-buffer aid]
+to-report ssw [previous-memory-buffer aid]
+  show "UPDATING MEMORY BUFFER - SSW"
   let updated-memory-buffer ( insert-item 0 (remove-item nu previous-memory-buffer) aid)
   report updated-memory-buffer
 end
@@ -249,10 +250,6 @@ to resize-nodes
   [
     ask turtles [ set size 1 ]
   ]
-end
-
-to ssw
-
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -291,7 +288,7 @@ rho
 rho
 1
 30
-40.0
+4.0
 1
 1
 NIL
@@ -306,7 +303,7 @@ nu
 nu
 1
 20
-13.0
+2.0
 1
 1
 NIL
@@ -410,7 +407,7 @@ CHOOSER
 positioning
 positioning
 "Random" "Border" "Circle"
-0
+2
 
 BUTTON
 271
@@ -462,7 +459,7 @@ true
 false
 "" ""
 PENS
-"default" 1.0 1 -16777216 true "" "let max-degree max [count link-neighbors] of turtles\nplot-pen-reset  ;; erase what we plotted before\nset-plot-x-range 1 (max-degree + 1)  ;; + 1 to make room for the width of the last bar\nhistogram [count link-neighbors] of turtles"
+"default" 1.0 1 -16777216 true "" "if not plot? [ stop ]\nlet max-degree max [count link-neighbors] of turtles\nplot-pen-reset  ;; erase what we plotted before\nset-plot-x-range 1 (max-degree + 1)  ;; + 1 to make room for the width of the last bar\nhistogram [count link-neighbors] of turtles"
 
 PLOT
 221
@@ -523,6 +520,17 @@ Network Settings
 16
 0.0
 1
+
+SWITCH
+262
+179
+365
+212
+plot?
+plot?
+0
+1
+-1000
 
 @#$#@#$#@
 ## WHAT IS IT?
