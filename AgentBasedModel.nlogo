@@ -304,7 +304,7 @@ nu
 nu
 1
 20
-3.0
+20.0
 1
 1
 NIL
@@ -318,7 +318,7 @@ CHOOSER
 strategy
 strategy
 "SSW" "WSW"
-0
+1
 
 BUTTON
 20
@@ -402,19 +402,19 @@ size-adj-possible
 
 CHOOSER
 246
-36
+33
 384
-81
+78
 positioning
 positioning
 "Random" "Border" "Circle"
-0
+1
 
 BUTTON
-271
-133
-354
-166
+273
+88
+356
+121
 LAYOUT
 layout\nresize-nodes
 T
@@ -496,20 +496,20 @@ Model Parameters
 1
 
 TEXTBOX
-251
-13
-401
-33
-Network Settings
+230
+10
+434
+50
+Visualisation Settings
 16
 0.0
 1
 
 SLIDER
-231
-174
-403
-207
+229
+134
+401
+167
 scale
 scale
 0
