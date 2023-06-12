@@ -242,41 +242,27 @@ end
 to layout
   layout-spring (turtles with [any? link-neighbors]) links 0.4 6 1
 
-  let maxX max [xcor] of turtles
-  let minX min [xcor] of turtles
-  let maxY max [ycor] of turtles
-  let minY min [ycor] of turtles
-
-  if (maxX + 2) > max-pxcor [
-    resize-world (min-pxcor * 1.05) (max-pxcor * 1.05) (min-pycor * 1.05) (max-pycor * 1.05)
-  ]
 
 
 end
 
 to resize-nodes
-  ifelse all? turtles [size <= 1]
-  [
-    ;; a node is a circle with diameter determined by
-    ;; the SIZE variable; using SQRT makes the circle's
-    ;; area proportional to its degree
-    ask turtles [ set size sqrt count link-neighbors ]
-  ]
-  [
-    ask turtles [ set size 1 ]
-  ]
+  ;;ifelse all? turtles [size <= 1]
+
+    ask turtles [ set size (  (count link-neighbors) ^ (scale / 10.0 ) ) ]
+
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
 437
 34
-1677
-1275
+1047
+645
 -1
 -1
-16.0
+2.0
 1
-10
+1
 1
 1
 1
@@ -284,10 +270,10 @@ GRAPHICS-WINDOW
 0
 0
 1
--38
-38
--38
-38
+-150
+150
+-150
+150
 1
 1
 1
@@ -303,7 +289,7 @@ rho
 rho
 1
 30
-30.0
+7.0
 1
 1
 NIL
@@ -318,7 +304,7 @@ nu
 nu
 1
 20
-9.0
+3.0
 1
 1
 NIL
@@ -422,7 +408,7 @@ CHOOSER
 positioning
 positioning
 "Random" "Border" "Circle"
-2
+0
 
 BUTTON
 271
@@ -430,25 +416,8 @@ BUTTON
 354
 166
 LAYOUT
-layout
+layout\nresize-nodes
 T
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
-253
-90
-371
-123
-RESIZE NODES
-resize-nodes
-NIL
 1
 T
 OBSERVER
@@ -474,7 +443,7 @@ true
 false
 "" ""
 PENS
-"default" 1.0 1 -16777216 true "" "if not plot? [ stop ]\nlet max-degree max [count link-neighbors] of turtles\nplot-pen-reset  ;; erase what we plotted before\nset-plot-x-range 1 (max-degree + 1)  ;; + 1 to make room for the width of the last bar\nhistogram [count link-neighbors] of turtles"
+"default" 1.0 1 -16777216 true "" "\nlet max-degree max [count link-neighbors] of turtles\nplot-pen-reset  ;; erase what we plotted before\nset-plot-x-range 1 (max-degree + 1)  ;; + 1 to make room for the width of the last bar\nhistogram [count link-neighbors] of turtles"
 
 PLOT
 221
@@ -536,16 +505,20 @@ Network Settings
 0.0
 1
 
-SWITCH
-262
-179
-365
-212
-plot?
-plot?
+SLIDER
+231
+174
+403
+207
+scale
+scale
 0
+20
+9.0
 1
--1000
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
