@@ -45,8 +45,6 @@ to setup
   while [ counter < initial-urns ] [
     set total-urns ( total-urns + nu + 1)
     create-urns 1 [
-    ;rt random-float 360
-
     set size 1
     set label who
     table:put dict who who
@@ -75,9 +73,6 @@ to setup
   set interacted-urns []
   set interacted-urns ( insert-item 0 interacted-urns 0 )
   set interacted-urns ( insert-item 0 interacted-urns 1 )
-  wait 0.005
-  clear-links
-  foreach [2 4 6]
   reset-ticks
 end
 
@@ -129,32 +124,56 @@ to go
     set size-adj-possible (size-adj-possible + (nu + 1))
   ]
   set called-id table:get dict called
-  wait 0.005
   ask turtle caller-id [ create-link-with turtle called-id [ set color white ] ]
-  wait 0.005
-  clear-links
 
   ;; step 4 - novelty
   ask turtles with [label = caller] [
     if not member? called past-interactions [
       ;; update the memory buffer
-      let updated-memory-buffer update-memory-buffer-wsw possible-interactions
-      foreach updated-memory-buffer [
-        aid ->
-        if aid != label [
-          set possible-interactions (insert-item 0 possible-interactions aid)
+      if strategy = "WSW"[
+        let updated-memory-buffer wsw possible-interactions
+        set memory-buffer updated-memory-buffer
+        foreach updated-memory-buffer [
+          aid ->
+          if aid != label [
+            set possible-interactions (insert-item 0 possible-interactions aid)
+          ]
+        ]
+      ]
+      if strategy = "SSW"[
+        let updated-memory-buffer ssw memory-buffer caller
+        set memory-buffer updated-memory-buffer
+        foreach updated-memory-buffer [
+          aid ->
+          if aid != label [
+            set possible-interactions (insert-item 0 possible-interactions aid)
+          ]
         ]
       ]
     ]
   ]
   ask turtles with [label = called] [
     if not member? called past-interactions [
+
       ;; update the memory buffer
-      let updated-memory-buffer update-memory-buffer-wsw possible-interactions
-      foreach updated-memory-buffer [
-        aid ->
-        if aid != label [
-          set possible-interactions (insert-item 0 possible-interactions aid)
+      if strategy = "WSW"[
+        let updated-memory-buffer wsw possible-interactions
+        set memory-buffer updated-memory-buffer
+        foreach updated-memory-buffer [
+          aid ->
+          if aid != label [
+            set possible-interactions (insert-item 0 possible-interactions aid)
+          ]
+        ]
+      ]
+      if strategy = "SSW"[
+        let updated-memory-buffer ssw memory-buffer called
+        set memory-buffer updated-memory-buffer
+        foreach updated-memory-buffer [
+          aid ->
+          if aid != label [
+            set possible-interactions (insert-item 0 possible-interactions aid)
+          ]
         ]
       ]
     ]
@@ -207,25 +226,43 @@ to get-called
   ]
 end
 
-to-report update-memory-buffer-wsw [agents-based-interactions]
+;; wsw strategy
+to-report wsw [agents-based-interactions]
   let updated-memory-buffer rnd:weighted-n-of-list (nu + 1) agents-based-interactions [ [w] -> w ]
   report updated-memory-buffer
 end
 
-to ssw
+;; ssw strategy
+to-report ssw [previous-memory-buffer aid]
+  let updated-memory-buffer ( insert-item 0 (remove-item nu previous-memory-buffer) aid)
+  report updated-memory-buffer
+end
+
+
+to layout
+  layout-spring (turtles with [any? link-neighbors]) links 0.4 6 1
+
+
+
+end
+
+to resize-nodes
+  ;;ifelse all? turtles [size <= 1]
+
+    ask turtles [ set size (  (count link-neighbors) ^ (scale / 10.0 ) ) ]
 
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-407
-19
-1455
-1068
+437
+34
+1047
+645
 -1
 -1
-16.0
+2.0
 1
-10
+1
 1
 1
 1
@@ -233,10 +270,10 @@ GRAPHICS-WINDOW
 0
 0
 1
--32
-32
--32
-32
+-150
+150
+-150
+150
 1
 1
 1
@@ -251,8 +288,8 @@ SLIDER
 rho
 rho
 1
-20
-20.0
+30
+7.0
 1
 1
 NIL
@@ -267,27 +304,27 @@ nu
 nu
 1
 20
-1.0
+3.0
 1
 1
 NIL
 HORIZONTAL
 
 CHOOSER
-20
-127
-158
-172
-Strategy
-Strategy
+41
+123
+179
+168
+strategy
+strategy
 "SSW" "WSW"
 0
 
 BUTTON
-76
-181
-146
-214
+20
+186
+90
+219
 SETUP
 setup
 NIL
@@ -301,11 +338,11 @@ NIL
 1
 
 BUTTON
-78
-224
-141
-257
-GO
+103
+230
+193
+263
+GO ONCE
 go
 NIL
 1
@@ -318,10 +355,10 @@ NIL
 1
 
 BUTTON
-77
-270
-140
-303
+20
+229
+89
+262
 GO
 go
 T
@@ -335,11 +372,11 @@ NIL
 0
 
 PLOT
-12
-383
-212
-533
-Size of Adjacent Possible Space
+0
+380
+200
+530
+Size Adj. Possible Space
 Time
 n
 0.0
@@ -353,25 +390,135 @@ PENS
 "default" 1.0 0 -16777216 true "" "plot size-adj-possible"
 
 MONITOR
-57
-319
-178
-364
-NIL
+31
+331
+200
+376
+Size Adj. Possible Space   
 size-adj-possible
 17
 1
 11
 
 CHOOSER
-173
-127
-311
-172
+246
+36
+384
+81
 positioning
 positioning
 "Random" "Border" "Circle"
+0
+
+BUTTON
+271
+133
+354
+166
+LAYOUT
+layout\nresize-nodes
+T
 1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+0
+
+PLOT
+3
+592
+203
+742
+Degree Distribution
+degree
+# of nodes
+1.0
+10.0
+0.0
+10.0
+true
+false
+"" ""
+PENS
+"default" 1.0 1 -16777216 true "" "\nlet max-degree max [count link-neighbors] of turtles\nplot-pen-reset  ;; erase what we plotted before\nset-plot-x-range 1 (max-degree + 1)  ;; + 1 to make room for the width of the last bar\nhistogram [count link-neighbors] of turtles"
+
+PLOT
+221
+380
+421
+530
+Number of Interacted Agents
+NIL
+NIL
+0.0
+10.0
+0.0
+10.0
+true
+false
+"" ""
+PENS
+"default" 1.0 0 -16777216 true "" "plot length interacted-urns"
+
+MONITOR
+246
+330
+421
+375
+Number Interacted Agents
+length interacted-urns
+0
+1
+11
+
+MONITOR
+28
+542
+151
+587
+Max Num of Links
+max [count link-neighbors] of turtles
+17
+1
+11
+
+TEXTBOX
+42
+10
+192
+30
+Model Parameters
+16
+0.0
+1
+
+TEXTBOX
+251
+13
+401
+33
+Network Settings
+16
+0.0
+1
+
+SLIDER
+231
+174
+403
+207
+scale
+scale
+0
+20
+9.0
+1
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
