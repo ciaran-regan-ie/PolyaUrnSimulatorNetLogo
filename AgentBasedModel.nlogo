@@ -1,20 +1,22 @@
-extensions [ rnd table ]
+extensions [ rnd table csv]
 
 
 globals [
-  total-urns
-  initial-urns
-  counter
-  caller
-  caller-id
+  total-urns ; track the total number of urns
+  initial-urns ; the number of urns to start with should be 2
+  counter ; counter to keep track of iterations
+  caller-turtle-id ; the turtle id of the caller agent
+  caller-urn-id ; the urn id of the caller agent
   caller-memory-buffer
-  called
-  called-id
-  called-memory-buffer
+  callee-turtle-id ; the turtle id of the callee agent
+  callee-urn-id ; the urn id of the callee agent
+  callee-memory-buffer
   interacted-urns
   dict
   size-adj-possible
   distance-between
+  colour
+  history
 ]
 
 breed [urns urn]
@@ -34,9 +36,11 @@ urns-own [
 to setup
   clear-all
   set dict table:make
-  set-default-shape urns "circle"
-  ask patches [ set pcolor gray ]
+  set history [["caller" "callee"]]
 
+  set-default-shape urns "circle"
+  ask patches [ set pcolor white ]
+  set colour turquoise
 
   ;; step 1 - initialise two urns, each with a memory buffer
   set initial-urns 2
@@ -48,7 +52,7 @@ to setup
     set size 1
     set label who
     table:put dict who who
-    set color red
+    set color colour
     set possible-interactions (range (total-urns - (( 1 ) * (nu + 1))) total-urns)
     set number-possible-interactions (length possible-interactions)
     set memory-buffer possible-interactions
@@ -69,7 +73,7 @@ to setup
 
   set size-adj-possible ((2 * (nu + 1)) + 2)
 
-  ask turtle 0 [ create-link-with turtle 1 [ set color white ] ]
+  ask turtle 0 [ create-link-with turtle 1 [ set color grey ] ]
   set interacted-urns []
   set interacted-urns ( insert-item 0 interacted-urns 0 )
   set interacted-urns ( insert-item 0 interacted-urns 1 )
@@ -81,15 +85,22 @@ end
 ;;;
 
 to go
+  if ticks >= num-iterations [stop] ; limit number of iterations
+
   ;; step 2 - extract balls from urn
   get-caller
-  set caller-id table:get dict caller
-  get-called
+  set caller-urn-id table:get dict caller-turtle-id ; update the dictionary
+  get-callee
 
-  ;; check if the called urn has taken part in an interaction before
-  if not member? called interacted-urns [
+  if member? callee-urn-id interacted-urns [ ; check if callee has interacted before
+    ask turtles with [label = callee-urn-id] [
+      set callee-turtle-id who
+    ]
+  ]
+
+  if not member? callee-urn-id interacted-urns [ ; check if callee has interacted before
     create-urns 1　[
-
+      ; set the spawn position of new agents
       if positioning = "Border" [
         let x 0
         let y 0
@@ -110,25 +121,25 @@ to go
       ]
 
       set size 1
-      set id called
-      set label called
-      table:put dict called who
-      set color red
-      set possible-interactions (range (total-urns) (total-urns + (( 1 ) * (nu + 1))))
+      set callee-turtle-id who
+      table:put dict who callee-urn-id
+      set label callee-urn-id
+      set color colour
+      set possible-interactions (range (total-urns) (total-urns + (( 1 ) * (nu + 1)))) ; expand adjacent possible space
       set number-possible-interactions (length possible-interactions)
-      set memory-buffer possible-interactions
+      set memory-buffer possible-interactions ; update the memory buffer object
       set past-interactions []
       set total-urns (total-urns + nu + 1 + 1)
     ]
-    set interacted-urns ( insert-item 0 interacted-urns called )
+    set interacted-urns ( insert-item 0 interacted-urns callee-urn-id )
     set size-adj-possible (size-adj-possible + (nu + 1))
   ]
-  set called-id table:get dict called
-  ask turtle caller-id [ create-link-with turtle called-id [ set color white ] ]
+  set history lput (list caller-turtle-id callee-turtle-id) history ; update the history
+  ask turtle caller-turtle-id [ create-link-with turtle callee-turtle-id [ set color grey ] ] ; create the link in the network
 
   ;; step 4 - novelty
-  ask turtles with [label = caller] [
-    if not member? called past-interactions [
+  ask turtles with [label = caller-urn-id] [
+    if not member? callee-turtle-id past-interactions [
       ;; update the memory buffer
       if strategy = "WSW"[
         let updated-memory-buffer wsw possible-interactions
@@ -141,7 +152,7 @@ to go
         ]
       ]
       if strategy = "SSW"[
-        let updated-memory-buffer ssw memory-buffer caller
+        let updated-memory-buffer ssw memory-buffer caller-urn-id
         set memory-buffer updated-memory-buffer
         foreach updated-memory-buffer [
           aid ->
@@ -152,8 +163,8 @@ to go
       ]
     ]
   ]
-  ask turtles with [label = called] [
-    if not member? called past-interactions [
+  ask turtles with [label = callee-urn-id] [
+    if not member? callee-urn-id past-interactions [
 
       ;; update the memory buffer
       if strategy = "WSW"[
@@ -167,7 +178,7 @@ to go
         ]
       ]
       if strategy = "SSW"[
-        let updated-memory-buffer ssw memory-buffer called
+        let updated-memory-buffer ssw memory-buffer callee-urn-id
         set memory-buffer updated-memory-buffer
         foreach updated-memory-buffer [
           aid ->
@@ -180,49 +191,50 @@ to go
   ]
 
   ;; step 3 - reinforcement
-  ask turtles with [label = caller] [
+  ask turtles with [label = caller-urn-id] [
     set counter 0
     while [ counter < rho ] [
-      set past-interactions (insert-item 0 past-interactions called)
+      set past-interactions (insert-item 0 past-interactions callee-urn-id)
       set counter (counter + 1)
     ]
     set number-possible-interactions (length possible-interactions)
   ]
-  ask turtles with [label = called] [
+  ask turtles with [label = callee-urn-id] [
     set counter 0
     while [ counter < rho ] [
-      set past-interactions (insert-item 0 past-interactions caller)
+      set past-interactions (insert-item 0 past-interactions caller-urn-id)
       set counter (counter + 1)
     ]
     set number-possible-interactions (length possible-interactions)
   ]
-
 
 
   ;; make the interacting agents move closer together
-  ask urn caller-id [
-      face urn called-id
+  ask urn caller-turtle-id [
+      face urn callee-turtle-id
       forward 1
   ]
-  ask urn called-id [
-      face urn caller-id
+  ask urn callee-turtle-id [
+      face urn caller-turtle-id
       forward 1
   ]
   tick
 
 end
 
+;get the caller agent
 to get-caller
   ask rnd:weighted-one-of urns [ number-possible-interactions ] [
-   set caller label
+   set caller-turtle-id who
    set caller-memory-buffer memory-buffer
   ]
 end
 
-to get-called
-  ask turtle caller-id [
-    set called (one-of possible-interactions)
-    set called-memory-buffer memory-buffer
+; get the callee agent
+to get-callee
+  ask turtle caller-turtle-id [
+    set callee-urn-id (one-of possible-interactions)
+    set callee-memory-buffer memory-buffer
   ]
 end
 
@@ -238,19 +250,19 @@ to-report ssw [previous-memory-buffer aid]
   report updated-memory-buffer
 end
 
-
+; adjust the layout of the network
 to layout
   layout-spring (turtles with [any? link-neighbors]) links 0.4 ((scale / 1.5) + 1) ((scale * 0.3) + 1)
-
-
-
 end
 
 to resize-nodes
-  ;;ifelse all? turtles [size <= 1]
-
     ask turtles [ set size (  (count link-neighbors) ^ (scale / 10.0 ) ) ]
+end
 
+; save the network image to computer
+to save-network
+  let filename word " " (word (date-and-time) "network.png")
+  export-view filename ; Save the current view as an image
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -289,7 +301,7 @@ rho
 rho
 1
 30
-7.0
+5.0
 1
 1
 NIL
@@ -302,9 +314,9 @@ SLIDER
 113
 nu
 nu
-1
+0
 20
-20.0
+5.0
 1
 1
 NIL
@@ -373,9 +385,9 @@ NIL
 
 PLOT
 0
-380
+454
 200
-530
+604
 Size Adj. Possible Space
 Time
 n
@@ -390,10 +402,10 @@ PENS
 "default" 1.0 0 -16777216 true "" "plot size-adj-possible"
 
 MONITOR
-31
-331
-200
-376
+32
+405
+201
+450
 Size Adj. Possible Space   
 size-adj-possible
 17
@@ -428,10 +440,10 @@ NIL
 1
 
 PLOT
-3
-592
-203
-742
+4
+666
+204
+816
 Degree Distribution
 degree
 # of nodes
@@ -446,10 +458,10 @@ PENS
 "default" 1.0 1 -16777216 true "" "\nlet max-degree max [count link-neighbors] of turtles\nplot-pen-reset  ;; erase what we plotted before\nset-plot-x-range 1 (max-degree + 1)  ;; + 1 to make room for the width of the last bar\nhistogram [count link-neighbors] of turtles"
 
 PLOT
-221
-380
-421
-530
+222
+454
+422
+604
 Number of Interacted Agents
 NIL
 NIL
@@ -464,10 +476,10 @@ PENS
 "default" 1.0 0 -16777216 true "" "plot length interacted-urns"
 
 MONITOR
-246
-330
-421
-375
+247
+404
+422
+449
 Number Interacted Agents
 length interacted-urns
 0
@@ -475,10 +487,10 @@ length interacted-urns
 11
 
 MONITOR
-28
-542
-151
-587
+29
+616
+152
+661
 Max Num of Links
 max [count link-neighbors] of turtles
 17
@@ -514,17 +526,17 @@ scale
 scale
 0
 15
-9.0
+10.0
 1
 1
 NIL
 HORIZONTAL
 
 PLOT
-223
-593
-423
-743
+224
+667
+424
+817
 Degree Distribution (log-log)
 NIL
 NIL
@@ -547,11 +559,67 @@ num-iterations
 num-iterations
 1
 5000
-1000.0
+956.0
 1
 1
 NIL
 HORIZONTAL
+
+BUTTON
+246
+226
+400
+259
+Save Network Image
+save-network
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+257
+272
+392
+305
+Save History CSV
+csv:to-file \"history.csv\" history
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+MONITOR
+33
+340
+123
+386
+Caller Agent
+caller-urn-id
+0
+1
+11
+
+MONITOR
+137
+340
+227
+386
+Callee Agent
+callee-urn-id
+17
+1
+11
 
 @#$#@#$#@
 ## WHAT IS IT?
