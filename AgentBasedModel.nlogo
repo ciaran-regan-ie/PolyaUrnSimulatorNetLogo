@@ -240,7 +240,7 @@ end
 
 
 to layout
-  layout-spring (turtles with [any? link-neighbors]) links 0.4 6 1
+  layout-spring (turtles with [any? link-neighbors]) links 0.4 ((scale / 1.5) + 1) ((scale * 0.3) + 1)
 
 
 
@@ -322,9 +322,9 @@ strategy
 
 BUTTON
 20
-186
+228
 90
-219
+261
 SETUP
 setup
 NIL
@@ -339,9 +339,9 @@ NIL
 
 BUTTON
 103
-230
+272
 193
-263
+305
 GO ONCE
 go
 NIL
@@ -356,9 +356,9 @@ NIL
 
 BUTTON
 20
-229
+271
 89
-262
+304
 GO
 go
 T
@@ -408,7 +408,7 @@ CHOOSER
 positioning
 positioning
 "Random" "Border" "Circle"
-1
+0
 
 BUTTON
 273
@@ -425,7 +425,7 @@ NIL
 NIL
 NIL
 NIL
-0
+1
 
 PLOT
 3
@@ -513,8 +513,41 @@ SLIDER
 scale
 scale
 0
-20
+15
 9.0
+1
+1
+NIL
+HORIZONTAL
+
+PLOT
+223
+593
+423
+743
+Degree Distribution (log-log)
+NIL
+NIL
+0.0
+0.3
+0.0
+0.3
+true
+false
+"" ""
+PENS
+"default" 1.0 2 -16777216 true "" "let max-degree max [count link-neighbors] of turtles\n;; for this plot, the axes are logarithmic, so we can't\n;; use \"histogram-from\"; we have to plot the points\n;; ourselves one at a time\nplot-pen-reset  ;; erase what we plotted before\n;; the way we create the network there is never a zero degree node,\n;; so start plotting at degree one\nlet degree 1\nwhile [degree <= max-degree] [\n  let matches turtles with [count link-neighbors = degree]\n  if any? matches\n    [ plotxy log degree 10\n             log (count matches) 10 ]\n  set degree degree + 1\n]"
+
+SLIDER
+23
+179
+195
+212
+num-iterations
+num-iterations
+1
+5000
+1000.0
 1
 1
 NIL
