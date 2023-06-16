@@ -22,7 +22,6 @@ globals [
 breed [urns urn]
 
 urns-own [
- id ;; the id of the urn
  possible-interactions ;; the urns available to be interacted with
  number-possible-interactions ;; the size of the urn, or the number of agents this agent has interacted with in the past
  past-interactions ;; a list of the urns previously interacted with
@@ -498,11 +497,11 @@ max [count link-neighbors] of turtles
 11
 
 TEXTBOX
-42
+32
 10
-192
-30
-Model Parameters
+227
+50
+Simulation Settings
 16
 0.0
 1
@@ -526,7 +525,7 @@ scale
 scale
 0
 15
-10.0
+13.0
 1
 1
 NIL
@@ -559,7 +558,7 @@ num-iterations
 num-iterations
 1
 5000
-956.0
+1000.0
 1
 1
 NIL
@@ -603,7 +602,7 @@ MONITOR
 33
 340
 123
-386
+385
 Caller Agent
 caller-urn-id
 0
@@ -614,7 +613,7 @@ MONITOR
 137
 340
 227
-386
+385
 Callee Agent
 callee-urn-id
 17

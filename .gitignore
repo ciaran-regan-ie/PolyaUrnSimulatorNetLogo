@@ -1,2 +1,4 @@
 .AgentBasedModel.tmp.nlogo
 .DS_Store
+*.png
+*.csv
