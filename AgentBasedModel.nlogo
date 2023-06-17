@@ -17,6 +17,7 @@ globals [
   distance-between
   colour
   history
+  gamma
 ]
 
 breed [urns urn]
@@ -217,6 +218,8 @@ to go
       face urn caller-turtle-id
       forward 1
   ]
+
+  calc_gamma
   tick
 
 end
@@ -263,12 +266,22 @@ to save-network
   let filename word " " (word (date-and-time) "network.png")
   export-view filename ; Save the current view as an image
 end
+
+;; calculate the Heaps' Law Exponent
+to calc_gamma
+  ifelse ( (ticks > 1) and ((count links) != 0) ) [
+  set gamma (log (ticks) (count links))
+] [
+  set gamma 0
+]
+
+end
 @#$#@#$#@
 GRAPHICS-WINDOW
-437
-34
-1047
-645
+737
+29
+1347
+640
 -1
 -1
 2.0
@@ -300,7 +313,7 @@ rho
 rho
 1
 30
-5.0
+11.0
 1
 1
 NIL
@@ -315,7 +328,7 @@ nu
 nu
 0
 20
-5.0
+9.0
 1
 1
 NIL
@@ -389,7 +402,7 @@ PLOT
 604
 Size Adj. Possible Space
 Time
-n
+# of agents
 0.0
 10.0
 0.0
@@ -461,9 +474,9 @@ PLOT
 454
 422
 604
-Number of Interacted Agents
-NIL
-NIL
+Number Interacted Agents
+Time
+# of agents
 0.0
 10.0
 0.0
@@ -472,15 +485,15 @@ true
 false
 "" ""
 PENS
-"default" 1.0 0 -16777216 true "" "plot length interacted-urns"
+"default" 1.0 0 -16777216 true "" "plot count turtles"
 
 MONITOR
-247
+235
 404
-422
+424
 449
-Number Interacted Agents
-length interacted-urns
+Number Interacted Agents    
+count turtles
 0
 1
 11
@@ -497,10 +510,10 @@ max [count link-neighbors] of turtles
 11
 
 TEXTBOX
-32
+31
 10
-227
-50
+226
+28
 Simulation Settings
 16
 0.0
@@ -525,7 +538,7 @@ scale
 scale
 0
 15
-13.0
+10.0
 1
 1
 NIL
@@ -537,8 +550,8 @@ PLOT
 424
 817
 Degree Distribution (log-log)
-NIL
-NIL
+log(degree)
+log(# of nodes)
 0.0
 0.3
 0.0
@@ -558,7 +571,7 @@ num-iterations
 num-iterations
 1
 5000
-1000.0
+1003.0
 1
 1
 NIL
@@ -617,6 +630,64 @@ MONITOR
 Callee Agent
 callee-urn-id
 17
+1
+11
+
+PLOT
+447
+456
+647
+606
+Number Edges
+NIL
+NIL
+0.0
+10.0
+0.0
+10.0
+true
+false
+"" ""
+PENS
+"default" 1.0 0 -16777216 true "" "plot count links"
+
+MONITOR
+452
+404
+652
+449
+Number Edges
+count links
+17
+1
+11
+
+PLOT
+449
+668
+649
+818
+Heaps' Law Exponent
+NIL
+NIL
+0.0
+2.0
+0.0
+2.0
+true
+false
+"" ""
+PENS
+"default" 1.0 0 -16777216 true "" "plot gamma\n\n"
+
+MONITOR
+464
+617
+652
+662
+Heaps' Law Exponent             
+gamma
+2
 1
 11
 
