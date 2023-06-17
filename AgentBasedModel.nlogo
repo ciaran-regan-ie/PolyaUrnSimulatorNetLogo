@@ -263,7 +263,7 @@ end
 
 ; save the network image to computer
 to save-network
-  let filename word " " (word (date-and-time) "network.png")
+  let filename word " " ( word "rho" word (rho) word "nu" word (nu) "network.jpg")
   export-view filename ; Save the current view as an image
 end
 
@@ -313,7 +313,7 @@ rho
 rho
 1
 30
-11.0
+30.0
 1
 1
 NIL
@@ -328,7 +328,7 @@ nu
 nu
 0
 20
-9.0
+5.0
 1
 1
 NIL
@@ -538,7 +538,7 @@ scale
 scale
 0
 15
-10.0
+12.0
 1
 1
 NIL
@@ -571,7 +571,7 @@ num-iterations
 num-iterations
 1
 5000
-1003.0
+1000.0
 1
 1
 NIL
@@ -681,10 +681,10 @@ PENS
 "default" 1.0 0 -16777216 true "" "plot gamma\n\n"
 
 MONITOR
-464
-617
-652
-662
+466
+615
+651
+660
 Heaps' Law Exponent             
 gamma
 2
