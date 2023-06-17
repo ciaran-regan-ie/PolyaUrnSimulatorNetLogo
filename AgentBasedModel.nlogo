@@ -269,7 +269,7 @@ end
 
 ;; calculate the Heaps' Law Exponent
 to calc_gamma
-  ifelse ( (ticks > 1) and ((count links) != 0) ) [
+  ifelse ( (ticks > 1) and ((count links) > 2) ) [
   set gamma (log (ticks) (count links))
 ] [
   set gamma 0
@@ -313,7 +313,7 @@ rho
 rho
 1
 30
-30.0
+8.0
 1
 1
 NIL
@@ -328,7 +328,7 @@ nu
 nu
 0
 20
-5.0
+20.0
 1
 1
 NIL
